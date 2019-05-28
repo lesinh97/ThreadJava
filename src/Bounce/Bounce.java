@@ -19,7 +19,7 @@ public class Bounce {
 class BounceFrame extends JFrame {
 	private BallComponent comp;
 	public static final int STEPS = 2000;
-	public static final int DELAY = 5;
+	public static final int DELAY = 10;
 	
 	public BounceFrame() {
 		setTitle("Bounce");
@@ -39,18 +39,23 @@ class BounceFrame extends JFrame {
 	}
 	
 	public void addBall() {
-		try {
-			Ball ball = new Ball();
-			comp.add(ball);
-			for (int i = 1; i < STEPS; i++) {
-				ball.move(comp.getBounds());
-				comp.paint(comp.getGraphics());
-				Thread.sleep(DELAY);
+		Ball ball = new Ball();
+		comp.add(ball);
+		Runnable r = () -> {
+			try {
+				for (int i = 1; i < STEPS; i++) {
+					ball.move(comp.getBounds());
+					comp.repaint();
+					Thread.sleep(DELAY);
+				}
 			}
-		} 
-		catch (InterruptedException e) {
-			// TODO: handle exception
-		}
+			catch (InterruptedException e) {
+				// TODO: handle exception
+				Thread.currentThread().interrupt();
+				e.printStackTrace();
+			}
+		};
+		Thread t = new Thread(r);
+		t.start();
 	}
-		
 }
