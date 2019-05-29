@@ -1,19 +1,18 @@
 package Synchronization;
 
+import java.util.Vector;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Bank {
 	private final double[] accounts;
-	private Lock bankLock = new ReentrantLock();
-	private Condition sufficientFunds;
+	private Object lock = new Object();
+	
 	public Bank(int n, double initialBalance) {
 		accounts = new double[n];
 		for (int i = 0; i < accounts.length; i++)
 			accounts[i] = initialBalance;
-		bankLock = new ReentrantLock();
-		sufficientFunds = bankLock.newCondition();
 	}
 	/**
 	* Transfers money from one account to another.
@@ -22,15 +21,14 @@ public class Bank {
 	* @param amount the amount to transfer
 	 * @throws InterruptedException 
 	*/
-	public synchronized void transfer(int from, int to, double amount) throws InterruptedException {
-			while (accounts[from] < amount)
-			wait();
+	public void transfer(Vector<Double> accounts, int from, int to, double amount) {
+		synchronized (accounts) {
+			accounts.set(from, accounts.get(from) - amount);
+			accounts.set(to, accounts.get(to) +amount);
+		}
 			System.out.print(Thread.currentThread());
-			accounts[from] -= amount;
 			System.out.printf(" %10.2f from %d to %d", amount, from, to);
-			accounts[to] += amount;
 			System.out.printf(" Total Balance: %10.2f%n", getTotalBalance());
-			notifyAll();
 	}
 	/**
 	* Gets the sum of all account balances.
@@ -38,17 +36,10 @@ public class Bank {
 	*/
 	public synchronized double getTotalBalance()
 	{
-		bankLock.lock();
-		try {
 			double sum = 0;
 			for (double a : accounts)
 			sum += a;
 			return sum;
-		}
-		finally {
-			bankLock.unlock();
-		}
-		
 	}
 	/**
 	* Gets the number of accounts in the bank.
