@@ -16,7 +16,7 @@ public class TransferRunnable implements Runnable {
 			while (true){
 				int toAccount = (int) (bank.size() * Math.random());
 				double amount = maxAmount * Math.random();
-				bank.transfer(fromAccount, toAccount, amount);
+				bank.transfer(null, fromAccount, toAccount, amount);
 				Thread.sleep((int) (DELAY * Math.random()));
 			}
 		}

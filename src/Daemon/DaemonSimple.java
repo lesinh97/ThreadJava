@@ -12,5 +12,3 @@ public class DaemonSimple {
         		+ ">><< Finishing main program");
 	}
 }
-
-
